@@ -10,10 +10,10 @@ export default function Home() {
     <div className="flex w-full h-screen">
       <div className="hidden lg:flex flex-col h-full w-1/2 justify-center">
         <div className="flex flex-row space-x-6 pl-20 pr-10">
-          <div className="flex items-center justify-center w-30 h-30 rounded-xl bg-white">
-            <Image src="/poker-scrum-icon.png" alt="test" width="90" height="90" />
+          <div className="flex items-center justify-center w-30 h-30 rounded-xl bg-white outline outline-4 outline-black">
+            <Image src="/poker-scrum-icon.png" alt="test" width="90" height="90"/>
           </div>
-          <h1 className="flex text-white text-5xl select-none font-bold items-center">
+          <h1 className="flex text-5xl select-none font-bold items-center">
             Planning Poker
           </h1>
         </div>
@@ -45,7 +45,7 @@ export default function Home() {
         <div className="w-4/5 flex flex-col items-center justify-center bg-white rounded-3xl shadow-lg p-10 space-y-8">
           <div className="flex flex-col items-center justify-center space-y-4">
             <div className="flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-green-500">
-              <PiPokerChip size={64} />
+              <PiPokerChip size={64} className="text-white"/>
             </div>
 
             <h1 className="text-black font-extrabold text-2xl">
