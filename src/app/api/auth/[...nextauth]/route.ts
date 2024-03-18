@@ -29,6 +29,7 @@ const handler = NextAuth({
     ],
     callbacks: {
         async jwt({ token, account, user }) {
+            console.log("test here")
             if (account && user) {
                 console.log("account", account);
                 console.log("user", user);
@@ -58,8 +59,9 @@ const handler = NextAuth({
     },
     pages: {
         signIn: '/'
-    }
+    },
+    secret: process.env.NEXTAUTH_SECRET,
 
 });
 
-export { handler as GET, handler as POST, handler };
+export { handler as GET, handler as POST };
