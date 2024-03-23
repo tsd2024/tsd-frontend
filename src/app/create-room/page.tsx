@@ -13,7 +13,8 @@ const formSchema = z.object({
         message: "Room name must be at least 3 characters.",
     }),
     allow_show_cards: z.boolean().default(false),
-    auto_show_cards: z.boolean().default(false)
+    auto_show_cards: z.boolean().default(false),
+    max_players: z.number()
 })
 
 export default function CreateRoomPage() {
@@ -21,6 +22,7 @@ export default function CreateRoomPage() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             roomname: "",
+            max_players: 1,
         },
     });
 
@@ -51,6 +53,28 @@ export default function CreateRoomPage() {
                         />
                         <FormField
                             control={form.control}
+                            name="max_players"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Maximum players</FormLabel>
+                                    <FormControl>
+                                        <Input 
+                                            placeholder="Max players" {...field} 
+                                            type="number" 
+                                            onChange={event => field.onChange(+event.target.value)}
+                                            min={1}
+                                            max={10}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Specify the maximum ammount of players in the room
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
                             name="allow_show_cards"
                             render={({ field }) => (
                                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
@@ -59,7 +83,7 @@ export default function CreateRoomPage() {
                                             Allow all users to show cards
                                         </FormLabel>
                                         <FormDescription>
-                                            All users will be able to flip cards at any moment.
+                                            All users will be able to flip cards.
                                         </FormDescription>
                                     </div>
                                     <FormControl>
