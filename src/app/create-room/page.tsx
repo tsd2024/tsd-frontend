@@ -1,20 +1,20 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormLabel, FormDescription, FormMessage, FormItem, FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch"
+import { Switch } from "@/components/ui/switch";
+import { v4 as uuidv4 } from 'uuid';
 
 const formSchema = z.object({
     roomname: z.string().min(3, {
         message: "Room name must be at least 3 characters.",
     }),
-    allow_show_cards: z.boolean().default(false),
-    auto_show_cards: z.boolean().default(false),
-    max_players: z.number()
+    max_players: z.number(),
+    max_rounds: z.number()
 })
 
 export default function CreateRoomPage() {
@@ -23,11 +23,20 @@ export default function CreateRoomPage() {
         defaultValues: {
             roomname: "",
             max_players: 1,
+            max_rounds: 1,
         },
     });
 
+    const generateId = () => {
+        return uuidv4(); // <-- Generate UUID
+    };
+
     function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+        const lobbyId = generateId();
+        const adminId = generateId();
+        console.log("Lobby id:", lobbyId);
+        console.log("Admin id:", adminId);
+        console.log(values);
     }
     return (
         <div className="container mx-auto flex flex-col gap-8 pt-12 pb-24">
@@ -75,45 +84,22 @@ export default function CreateRoomPage() {
                         />
                         <FormField
                             control={form.control}
-                            name="allow_show_cards"
+                            name="max_rounds"
                             render={({ field }) => (
-                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                    <div className="space-y-0.5">
-                                        <FormLabel className="text-base">
-                                            Allow all users to show cards
-                                        </FormLabel>
-                                        <FormDescription>
-                                            All users will be able to flip cards.
-                                        </FormDescription>
-                                    </div>
+                                <FormItem>
+                                    <FormLabel>Maximum rounds</FormLabel>
                                     <FormControl>
-                                        <Switch
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
+                                        <Input 
+                                            placeholder="Max rounds" {...field} 
+                                            type="number" 
+                                            onChange={event => field.onChange(+event.target.value)}
+                                            min={1}
                                         />
                                     </FormControl>
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="auto_show_cards"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                    <div className="space-y-0.5">
-                                        <FormLabel className="text-base">
-                                            Allow to show cards automatically
-                                        </FormLabel>
-                                        <FormDescription>
-                                            All cards will be revealed after everyone voted.
-                                        </FormDescription>
-                                    </div>
-                                    <FormControl>
-                                        <Switch
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                        />
-                                    </FormControl>
+                                    <FormDescription>
+                                        Specify the maximum ammount of rounds
+                                    </FormDescription>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
