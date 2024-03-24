@@ -12,7 +12,6 @@ export function GoogleSignInButton() {
     };
 
     return (
-
         <button
             onClick={handleClick}
             className="w-full max-w-sm shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline">
