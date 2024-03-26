@@ -54,7 +54,7 @@ const config = {
         },
       },
       height: {
-        "nav": "10vh",
+        "nav": "12vh",
       },
       borderRadius: {
         lg: "var(--radius)",
