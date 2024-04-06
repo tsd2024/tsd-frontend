@@ -29,7 +29,6 @@ const handler = NextAuth({
     ],
     callbacks: {
         async jwt({ token, account, user }) {
-            console.log("test here")
             if (account && user) {
                 console.log("account", account);
                 console.log("user", user);

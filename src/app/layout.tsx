@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "@/components/SessionProvider";
 import { ThemeProvider } from "@/components/theme-provider"
+import { TopBar } from "@/components/TopBar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,7 +27,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <SessionProvider>
-            {children}
+
+            <div className="flex flex-col h-screen">
+              <TopBar />
+              {children}
+            </div>
+
           </SessionProvider>
         </ThemeProvider>
       </body>
