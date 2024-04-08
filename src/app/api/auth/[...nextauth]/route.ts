@@ -48,6 +48,9 @@ const handler = NextAuth({
             if (session) {
                 session = Object.assign({}, session, {
                     id_token: token.id_token,
+                    user: {
+                      name: (token.user as { name: string }).name,
+                    },
                 });
                 session = Object.assign({}, session, {
                     authToken: token.myToken,
@@ -64,3 +67,4 @@ const handler = NextAuth({
 });
 
 export { handler as GET, handler as POST };
+
