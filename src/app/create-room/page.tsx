@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -8,6 +8,8 @@ import { Form, FormField, FormLabel, FormDescription, FormMessage, FormItem, For
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { v4 as uuidv4 } from 'uuid';
+import useWebSocket from 'react-use-websocket';
+import { useRouter } from 'next/navigation'
 
 const formSchema = z.object({
     roomname: z.string().min(3, {
@@ -27,8 +29,36 @@ export default function CreateRoomPage() {
         },
     });
 
+    const router = useRouter();
+
     const generateId = () => {
         return uuidv4(); // <-- Generate UUID
+    };
+
+    const { sendMessage, lastMessage, readyState } = useWebSocket('ws://localhost:8009/api/v1/room', {
+        shouldReconnect: () => true,
+        onOpen: () => console.log("opened"),
+        onMessage: (event) => {
+            console.log("received", event.data);
+            let data = JSON.parse(event.data);
+
+            console.log(data);
+            if (data.action === "create") {
+                console.log("Lobby created");
+                let roomId = data.lobby_id;
+                router.push(`/rooms/${roomId}`);
+            }
+        },
+
+    });
+
+    const createLobby = (maxPlayers: number, numberOfRounds: number, lobbyName: string) => {
+        console.log("Creating lobby")
+        let data = {
+            action: "create",
+            value: { max_players: maxPlayers, number_of_rounds: numberOfRounds, lobby_name: lobbyName, admin_id: generateId() }
+        }
+        sendMessage(JSON.stringify(data));
     };
 
     function onSubmit(values: z.infer<typeof formSchema>) {
@@ -37,7 +67,9 @@ export default function CreateRoomPage() {
         console.log("Lobby id:", lobbyId);
         console.log("Admin id:", adminId);
         console.log(values);
+        createLobby(values.max_players, values.max_rounds, values.roomname);
     }
+
     return (
         <div className="container mx-auto flex flex-col gap-8 pt-12 pb-24">
             <h1 className="text-4xl font-bold">Create Room</h1>

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card"
 
 import { GoTasklist } from "react-icons/go";
+import useWebSocket from 'react-use-websocket';
 
 
 export default function RoomPage({ params }: { params: { roomId: string } }) {
@@ -31,6 +32,21 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
             setSelectedCard(card);
         }
     };
+
+    const { sendMessage, lastMessage, readyState } = useWebSocket('ws://localhost:8009/api/v1/room', {
+        shouldReconnect: () => true,
+        onOpen: () => {
+            console.log("opened");
+            sendMessage(JSON.stringify({ action: "join", value: { lobby_id: roomId, player_id: "player1" } }));
+        },
+        onMessage: (event) => {
+            console.log("received", event.data);
+            let data = JSON.parse(event.data);
+            console.log(data)
+
+        },
+
+    });
 
     return (
         <div className="flex flex-row w-full h-screen">
@@ -62,7 +78,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                     <div className="flex flex-row space-x-4 items-center mr-2">
                         <Button variant={"outline"}>Invite players</Button>
                         <Button variant={"outline"}>
-                            <GoTasklist className="h-full w-auto"/>
+                            <GoTasklist className="h-full w-auto" />
                         </Button>
                     </div>
                 </div>
@@ -73,7 +89,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                             <p className="text-gray-700 dark:text-gray-300">Pick your cards!</p>
                         </div>
                     </div>
-                    {/* This button should be only available for lobby */}
+                    {/* This button should be only available for lobby admin*/}
                     <Button variant="default">
                         Show cards
                     </Button>
