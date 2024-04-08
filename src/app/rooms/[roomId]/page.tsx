@@ -26,6 +26,7 @@ type Player = {
 
 export default function RoomPage({ params }: { params: { roomId: string } }) {
     const BACKEND_URL = process.env.BACKEND_URL;
+    const WEBSOCKET_PROTOCOL = process.env.WEBSOCKET_PROTOCOL;
 
     const searchParams = useSearchParams()
     const playerId = searchParams.get('playerId')
@@ -48,7 +49,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
         playCard(card);
     };
 
-    const { sendMessage, lastMessage, readyState } = useWebSocket(`ws://${BACKEND_URL}/api/v1/room`, {
+    const { sendMessage, lastMessage, readyState } = useWebSocket(`${WEBSOCKET_PROTOCOL}://${BACKEND_URL}/api/v1/room`, {
         shouldReconnect: () => true,
         onOpen: () => {
             console.log("opened");

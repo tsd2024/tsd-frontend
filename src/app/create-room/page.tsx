@@ -31,12 +31,14 @@ export default function CreateRoomPage() {
     });
 
     const router = useRouter();
+    const BACKEND_URL = process.env.BACKEND_URL;
+    const WEBSOCKET_PROTOCOL = process.env.WEBSOCKET_PROTOCOL;
 
     const generateId = () => {
         return uuidv4(); // <-- Generate UUID
     };
 
-    const { sendMessage, lastMessage, readyState } = useWebSocket('ws://localhost:8009/api/v1/room', {
+    const { sendMessage, lastMessage, readyState } = useWebSocket(`${WEBSOCKET_PROTOCOL}://${BACKEND_URL}/api/v1/room`, {
         shouldReconnect: () => true,
         onOpen: () => console.log("opened"),
         onMessage: (event) => {
