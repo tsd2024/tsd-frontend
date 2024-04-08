@@ -1,17 +1,14 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
 
 export function GoogleSignInButton() {
-    const searchParams = useSearchParams();
-    const callbackUrl = searchParams.get("callbackUrl");
-
     const handleClick = () => {
-        signIn("google", { callbackUrl: callbackUrl || "/dashboard"});
+        signIn("google", { callbackUrl: "/dashboard"});
     };
 
     return (
+
         <button
             onClick={handleClick}
             className="w-full max-w-sm shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline">

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "@/components/SessionProvider";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/theme-provider"
+import { TopBar } from "@/components/TopBar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,9 +26,17 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SessionProvider>{children}</SessionProvider>
+          <SessionProvider>
+
+            <div className="flex flex-col h-screen">
+              <TopBar />
+              {children}
+            </div>
+
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
+
