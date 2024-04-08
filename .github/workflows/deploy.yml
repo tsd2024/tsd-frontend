@@ -30,6 +30,7 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
           BACKEND_URL: ${{ vars.BACKEND_URL }}
+          WEBSOCKET_PROTOCOL: wss
 
         run: |
           npx sst deploy --stage prod
