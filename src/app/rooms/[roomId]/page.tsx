@@ -12,41 +12,68 @@ import {
 
 import { GoTasklist } from "react-icons/go";
 import useWebSocket from 'react-use-websocket';
+import ActionType from '@/types/ActionType';
+
+import { useSearchParams } from 'next/navigation'
 
 
 export default function RoomPage({ params }: { params: { roomId: string } }) {
+    const searchParams = useSearchParams()
+    const BACKEND_URL = process.env.BACKEND_URL;
+    const playerId = searchParams.get('playerId')
+    const isAdmin = searchParams.get('admin') === 'true';
     const roomId = params.roomId;
     const [joinedPlayers, setJoinedPlayers] = useState<string[]>([]);
 
     useEffect(() => {
         setJoinedPlayers(['Player 1', 'Player 2']);
     }, []);
-    const cards = [0, 1, 2, 3, 5, 8, 13, 21, 34, "?"]
+    const cards = [1, 2, 3, 5, 8, 13, 21]
 
-    const [selectedCard, setSelectedCard] = useState<number | string | null>(null);
+    const [selectedCard, setSelectedCard] = useState<number | null>(null);
 
-    const handleCardSelection = (card: number | string) => {
+    const handleCardSelection = (card: number) => {
         if (selectedCard === card) {
             setSelectedCard(null);
         } else {
             setSelectedCard(card);
         }
+        playCard(card);
     };
 
-    const { sendMessage, lastMessage, readyState } = useWebSocket('ws://localhost:8009/api/v1/room', {
+    const { sendMessage, lastMessage, readyState } = useWebSocket(`ws://${BACKEND_URL}/api/v1/room`, {
         shouldReconnect: () => true,
         onOpen: () => {
             console.log("opened");
-            sendMessage(JSON.stringify({ action: "join", value: { lobby_id: roomId, player_id: "player1" } }));
+            const joinData = {
+                action: ActionType.JOIN,
+                value: { lobby_id: roomId, player_id: "admin" }
+            }
+            sendMessage(JSON.stringify(joinData));
         },
         onMessage: (event) => {
             console.log("received", event.data);
-            let data = JSON.parse(event.data);
-            console.log(data)
-
+            let receiveData = JSON.parse(event.data);
+            console.log(receiveData)
         },
-
     });
+
+
+    const playCard = (card: number) => {
+        const playCardData = {
+            action: ActionType.PLAY_CARD,
+            value: { lobby_id: roomId, player_id: "admin", card: card }
+        }
+        sendMessage(JSON.stringify(playCardData));
+    }
+
+    const revealCards = () => {
+        const revealData = {
+            action: ActionType.REVEAL,
+            value: { lobby_id: roomId, player_id: "admin" }
+        }
+        sendMessage(JSON.stringify(revealData));
+    }
 
     return (
         <div className="flex flex-row w-full h-screen">
@@ -90,9 +117,11 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                         </div>
                     </div>
                     {/* This button should be only available for lobby admin*/}
-                    <Button variant="default">
-                        Show cards
-                    </Button>
+                    {isAdmin && (
+                        <Button variant="default" onClick={revealCards}>
+                            Show cards
+                        </Button>
+                    )}
                 </div>
                 {/* Cards */}
                 <div className="space-y-4">

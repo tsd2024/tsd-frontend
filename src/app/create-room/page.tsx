@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { v4 as uuidv4 } from 'uuid';
 import useWebSocket from 'react-use-websocket';
 import { useRouter } from 'next/navigation'
+import ActionType from "@/types/ActionType";
 
 const formSchema = z.object({
     roomname: z.string().min(3, {
@@ -40,13 +41,12 @@ export default function CreateRoomPage() {
         onOpen: () => console.log("opened"),
         onMessage: (event) => {
             console.log("received", event.data);
-            let data = JSON.parse(event.data);
+            const data = JSON.parse(event.data);
 
-            console.log(data);
             if (data.action === "create") {
                 console.log("Lobby created");
-                let roomId = data.lobby_id;
-                router.push(`/rooms/${roomId}`);
+                const roomId = data.lobby_id;
+                router.push(`/rooms/${roomId}/?playerId=admin&admin=true`);
             }
         },
 
@@ -55,8 +55,8 @@ export default function CreateRoomPage() {
     const createLobby = (maxPlayers: number, numberOfRounds: number, lobbyName: string) => {
         console.log("Creating lobby")
         let data = {
-            action: "create",
-            value: { max_players: maxPlayers, number_of_rounds: numberOfRounds, lobby_name: lobbyName, admin_id: generateId() }
+            action: ActionType.CREATE,
+            value: { max_players: maxPlayers, number_of_rounds: numberOfRounds, lobby_name: lobbyName, admin_id: "admin" }
         }
         sendMessage(JSON.stringify(data));
     };

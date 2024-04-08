@@ -40,7 +40,7 @@ export const TopBar = () => {
                     Create
                 </Link>
                 <Link
-                    href="#"
+                    href="/join"
                     className="text-muted-foreground transition-colors hover:text-foreground"
                 >
                     Join
