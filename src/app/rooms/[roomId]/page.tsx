@@ -17,20 +17,27 @@ import ActionType from '@/types/ActionType';
 import { useSearchParams } from 'next/navigation'
 
 
+type Player = {
+    player_id: string;
+    card: any;
+    ready: boolean;
+};
+
+
 export default function RoomPage({ params }: { params: { roomId: string } }) {
-    const searchParams = useSearchParams()
     const BACKEND_URL = process.env.BACKEND_URL;
+
+    const searchParams = useSearchParams()
     const playerId = searchParams.get('playerId')
     const isAdmin = searchParams.get('admin') === 'true';
     const roomId = params.roomId;
-    const [joinedPlayers, setJoinedPlayers] = useState<string[]>([]);
 
-    useEffect(() => {
-        setJoinedPlayers(['Player 1', 'Player 2']);
-    }, []);
-    const cards = [1, 2, 3, 5, 8, 13, 21]
-
+    const [joinedPlayers, setJoinedPlayers] = useState<Player[]>([]);
+    const [revealedCards, setRevealedCards] = useState<string[] | null>(null);
     const [selectedCard, setSelectedCard] = useState<number | null>(null);
+    const [revealReady, setRevealReady] = useState<boolean>(false);
+
+    const cards = [1, 2, 3, 5, 8, 13, 21]
 
     const handleCardSelection = (card: number) => {
         if (selectedCard === card) {
@@ -47,7 +54,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
             console.log("opened");
             const joinData = {
                 action: ActionType.JOIN,
-                value: { lobby_id: roomId, player_id: "admin" }
+                value: { lobby_id: roomId, player_id: playerId }
             }
             sendMessage(JSON.stringify(joinData));
         },
@@ -55,14 +62,22 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
             console.log("received", event.data);
             let receiveData = JSON.parse(event.data);
             console.log(receiveData)
+
+            if (receiveData.action === ActionType.LOBBY_STATE) {
+                console.log("Lobby created");
+                const players = receiveData.value.players
+                setJoinedPlayers(players);
+                if (receiveData.value.reveal_ready){
+                    setRevealReady(true);
+                }
+            }
         },
     });
-
 
     const playCard = (card: number) => {
         const playCardData = {
             action: ActionType.PLAY_CARD,
-            value: { lobby_id: roomId, player_id: "admin", card: card }
+            value: { lobby_id: roomId, player_id: playerId, card: card }
         }
         sendMessage(JSON.stringify(playCardData));
     }
@@ -70,7 +85,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
     const revealCards = () => {
         const revealData = {
             action: ActionType.REVEAL,
-            value: { lobby_id: roomId, player_id: "admin" }
+            value: { lobby_id: roomId, player_id: playerId }
         }
         sendMessage(JSON.stringify(revealData));
     }
@@ -84,13 +99,14 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                 {/* Players' cards */}
                 <div className="flex flex-col space-y-4">
                     {joinedPlayers.map((player) => (
-                        <Card key={player}>
+                        <Card key={player.player_id}>
                             <CardHeader>
-                                <CardTitle>{player}</CardTitle>
+                                <CardTitle>{player.player_id}</CardTitle>
                                 <CardDescription>
                                     <div className="flex flex-row space-x-4 items-center">
-                                        <p>choosing card</p>
-                                        <div className="w-3 h-3 rounded-full bg-yellow-300"></div>
+                                        <p>{player.ready ? 'Ready' : 'Choosing card'}</p>
+                                        <div className={`w-3 h-3 rounded-full ${player.ready ? 'bg-green-400' : 'bg-yellow-300'}`}></div>
+                                        <p>{revealReady ? player.card : ''}</p>
                                     </div>
                                 </CardDescription>
                             </CardHeader>
