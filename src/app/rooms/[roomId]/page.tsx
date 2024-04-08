@@ -11,26 +11,84 @@ import {
 } from "@/components/ui/card"
 
 import { GoTasklist } from "react-icons/go";
+import useWebSocket from 'react-use-websocket';
+import ActionType from '@/types/ActionType';
+
+import { useSearchParams } from 'next/navigation'
+
+
+type Player = {
+    player_id: string;
+    card: any;
+    ready: boolean;
+};
 
 
 export default function RoomPage({ params }: { params: { roomId: string } }) {
+    const BACKEND_URL = process.env.BACKEND_URL;
+
+    const searchParams = useSearchParams()
+    const playerId = searchParams.get('playerId')
+    const isAdmin = searchParams.get('admin') === 'true';
     const roomId = params.roomId;
-    const [joinedPlayers, setJoinedPlayers] = useState<string[]>([]);
 
-    useEffect(() => {
-        setJoinedPlayers(['Player 1', 'Player 2']);
-    }, []);
-    const cards = [0, 1, 2, 3, 5, 8, 13, 21, 34, "?"]
+    const [joinedPlayers, setJoinedPlayers] = useState<Player[]>([]);
+    const [revealedCards, setRevealedCards] = useState<string[] | null>(null);
+    const [selectedCard, setSelectedCard] = useState<number | null>(null);
+    const [revealReady, setRevealReady] = useState<boolean>(false);
 
-    const [selectedCard, setSelectedCard] = useState<number | string | null>(null);
+    const cards = [1, 2, 3, 5, 8, 13, 21]
 
-    const handleCardSelection = (card: number | string) => {
+    const handleCardSelection = (card: number) => {
         if (selectedCard === card) {
             setSelectedCard(null);
         } else {
             setSelectedCard(card);
         }
+        playCard(card);
     };
+
+    const { sendMessage, lastMessage, readyState } = useWebSocket(`ws://${BACKEND_URL}/api/v1/room`, {
+        shouldReconnect: () => true,
+        onOpen: () => {
+            console.log("opened");
+            const joinData = {
+                action: ActionType.JOIN,
+                value: { lobby_id: roomId, player_id: playerId }
+            }
+            sendMessage(JSON.stringify(joinData));
+        },
+        onMessage: (event) => {
+            console.log("received", event.data);
+            let receiveData = JSON.parse(event.data);
+            console.log(receiveData)
+
+            if (receiveData.action === ActionType.LOBBY_STATE) {
+                console.log("Lobby created");
+                const players = receiveData.value.players
+                setJoinedPlayers(players);
+                if (receiveData.value.reveal_ready){
+                    setRevealReady(true);
+                }
+            }
+        },
+    });
+
+    const playCard = (card: number) => {
+        const playCardData = {
+            action: ActionType.PLAY_CARD,
+            value: { lobby_id: roomId, player_id: playerId, card: card }
+        }
+        sendMessage(JSON.stringify(playCardData));
+    }
+
+    const revealCards = () => {
+        const revealData = {
+            action: ActionType.REVEAL,
+            value: { lobby_id: roomId, player_id: playerId }
+        }
+        sendMessage(JSON.stringify(revealData));
+    }
 
     return (
         <div className="flex flex-row w-full h-screen">
@@ -41,13 +99,14 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                 {/* Players' cards */}
                 <div className="flex flex-col space-y-4">
                     {joinedPlayers.map((player) => (
-                        <Card key={player}>
+                        <Card key={player.player_id}>
                             <CardHeader>
-                                <CardTitle>{player}</CardTitle>
+                                <CardTitle>{player.player_id}</CardTitle>
                                 <CardDescription>
                                     <div className="flex flex-row space-x-4 items-center">
-                                        <p>choosing card</p>
-                                        <div className="w-3 h-3 rounded-full bg-yellow-300"></div>
+                                        <p>{player.ready ? 'Ready' : 'Choosing card'}</p>
+                                        <div className={`w-3 h-3 rounded-full ${player.ready ? 'bg-green-400' : 'bg-yellow-300'}`}></div>
+                                        <p>{revealReady ? player.card : ''}</p>
                                     </div>
                                 </CardDescription>
                             </CardHeader>
@@ -62,7 +121,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                     <div className="flex flex-row space-x-4 items-center mr-2">
                         <Button variant={"outline"}>Invite players</Button>
                         <Button variant={"outline"}>
-                            <GoTasklist className="h-full w-auto"/>
+                            <GoTasklist className="h-full w-auto" />
                         </Button>
                     </div>
                 </div>
@@ -73,10 +132,12 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                             <p className="text-gray-700 dark:text-gray-300">Pick your cards!</p>
                         </div>
                     </div>
-                    {/* This button should be only available for lobby */}
-                    <Button variant="default">
-                        Show cards
-                    </Button>
+                    {/* This button should be only available for lobby admin*/}
+                    {isAdmin && (
+                        <Button variant="default" onClick={revealCards}>
+                            Show cards
+                        </Button>
+                    )}
                 </div>
                 {/* Cards */}
                 <div className="space-y-4">
