@@ -43,10 +43,11 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
     const handleCardSelection = (card: number) => {
         if (selectedCard === card) {
             setSelectedCard(null);
+            cancelCard();
         } else {
             setSelectedCard(card);
+            playCard(card);
         }
-        playCard(card);
     };
 
     const { sendMessage, lastMessage, readyState } = useWebSocket(`${WEBSOCKET_PROTOCOL}://${BACKEND_URL}/api/v1/room`, {
@@ -90,6 +91,14 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
         }
         sendMessage(JSON.stringify(revealData));
     }
+
+    const cancelCard = () => {
+        const cancelCardData = {
+            action: ActionType.CANCEL,
+            value: { lobby_id: roomId, player_id: playerId }
+        }
+        sendMessage(JSON.stringify(cancelCardData));
+    };
 
     return (
         <div className="flex flex-row w-full h-screen">
