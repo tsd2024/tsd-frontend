@@ -13,15 +13,11 @@ import {
 import { GoTasklist } from "react-icons/go";
 import useWebSocket from 'react-use-websocket';
 import ActionType from '@/types/ActionType';
+import Player from '@/types/Player';
 
 import { useSearchParams } from 'next/navigation'
 
-
-type Player = {
-    player_id: string;
-    card: any;
-    ready: boolean;
-};
+import { LobbyResultSheet } from './LobbyResultSheet';
 
 
 export default function RoomPage({ params }: { params: { roomId: string } }) {
@@ -34,9 +30,10 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
     const roomId = params.roomId;
 
     const [joinedPlayers, setJoinedPlayers] = useState<Player[]>([]);
-    const [revealedCards, setRevealedCards] = useState<string[] | null>(null);
     const [selectedCard, setSelectedCard] = useState<number | null>(null);
-    const [revealReady, setRevealReady] = useState<boolean>(false);
+    const [roundConcluded, setRoundConcluded] = useState<boolean>(false);
+    const [isResultSheetOpen, setIsResultSheetOpen] = useState<boolean>(false);
+    const [firstResultSheetOpen, setFirstResultSheetOpen] = useState<boolean>(false);
 
     const cards = [1, 2, 3, 5, 8, 13, 21]
 
@@ -53,7 +50,6 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
     const { sendMessage, lastMessage, readyState } = useWebSocket(`${WEBSOCKET_PROTOCOL}://${BACKEND_URL}/api/v1/room`, {
         shouldReconnect: () => true,
         onOpen: () => {
-            console.log("opened");
             const joinData = {
                 action: ActionType.JOIN,
                 value: { lobby_id: roomId, player_id: playerId }
@@ -61,16 +57,19 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
             sendMessage(JSON.stringify(joinData));
         },
         onMessage: (event) => {
-            console.log("received", event.data);
             let receiveData = JSON.parse(event.data);
             console.log(receiveData)
 
+            if (receiveData.action === ActionType.LOBBY_STATE && receiveData.value.reveal_ready && !firstResultSheetOpen) {
+                setFirstResultSheetOpen(true);
+                openResultsSheet();
+            }
+
             if (receiveData.action === ActionType.LOBBY_STATE) {
-                console.log("Lobby created");
                 const players = receiveData.value.players
                 setJoinedPlayers(players);
-                if (receiveData.value.reveal_ready){
-                    setRevealReady(true);
+                if (receiveData.value.reveal_ready) {
+                    setRoundConcluded(true);
                 }
             }
         },
@@ -100,6 +99,10 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
         sendMessage(JSON.stringify(cancelCardData));
     };
 
+    const openResultsSheet = () => {
+        setIsResultSheetOpen(true);
+    }
+
     return (
         <div className="flex flex-row w-full h-screen">
             <div className="flex flex-col border-r w-1/5 p-4">
@@ -116,7 +119,6 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                                     <div className="flex flex-row space-x-4 items-center">
                                         <p>{player.ready ? 'Ready' : 'Choosing card'}</p>
                                         <div className={`w-3 h-3 rounded-full ${player.ready ? 'bg-green-400' : 'bg-yellow-300'}`}></div>
-                                        <p>{revealReady ? player.card : ''}</p>
                                     </div>
                                 </CardDescription>
                             </CardHeader>
@@ -143,11 +145,26 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                         </div>
                     </div>
                     {/* This button should be only available for lobby admin*/}
-                    {isAdmin && (
-                        <Button variant="default" onClick={revealCards}>
-                            Show cards
-                        </Button>
-                    )}
+                    <div className="flex flex-row space-x-2">
+                        {isAdmin && (
+                            <Button variant="default" onClick={revealCards} className={roundConcluded ? "w-1/2" : "w-full"} >
+                                Show cards
+                            </Button>
+                        )}
+                        {true && (
+                            <Button variant="default" className={!isAdmin ? "w-full" : "w-1/2"} onClick={openResultsSheet}>
+                                Results
+                            </Button>
+                        )}
+                        <LobbyResultSheet
+                            joinedPlayers={joinedPlayers}
+                            isAdmin={isAdmin}
+                            isOpen={isResultSheetOpen}
+                            onOpenChange={setIsResultSheetOpen}
+                            roundConcluded={roundConcluded}
+                        />
+                    </div>
+
                 </div>
                 {/* Cards */}
                 <div className="space-y-4">
