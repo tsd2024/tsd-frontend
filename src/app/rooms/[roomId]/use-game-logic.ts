@@ -20,7 +20,7 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
     const [firstResultSheetOpen, setFirstResultSheetOpen] = useState<boolean>(false);
 
     const cards = [1, 2, 3, 5, 8, 13, 21]
-
+    
     const handleCardSelection = (card: number) => {
         if (selectedCard === card) {
             setSelectedCard(null);
@@ -94,6 +94,11 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
         setIsResultSheetOpen(true);
     };
 
+    const copyInviteLink = () => {
+        const lobbyLink = `${window.location.origin}/join/?roomId=${roomId}`;
+        navigator.clipboard.writeText(lobbyLink);
+    }
+
     return {
         joinedPlayers,
         setJoinedPlayers,
@@ -108,7 +113,8 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
         cancelCard,
         readyState,
         cards,
-        openResultsSheet
+        openResultsSheet,
+        copyInviteLink
     };
 };
 
