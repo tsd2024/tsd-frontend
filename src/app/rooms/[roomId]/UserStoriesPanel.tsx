@@ -106,6 +106,7 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
     props.createUserStory(newUserStory);
     console.log(newUserStory);
     form.reset();
+    setTicket("")
   }
 
   const [ticket, setTicket] = useState("");
@@ -113,8 +114,9 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
 
   const addTicket = () => {
     if (ticket.trim() !== "") {
-      form.setValue("tickets", [...form.getValues("tickets"), ticket]);
+      const updatedTickets = [...form.getValues("tickets"), ticket];
       setTicket("");
+      form.setValue("tickets", updatedTickets);
     }
   };
 
@@ -128,13 +130,13 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
   return (
     <>
       {/*User Stories*/}
-      <Sheet>
+      <Sheet >
         <SheetTrigger asChild>
           <Button variant={"outline"}>
             <GoTasklist className="h-full w-auto" />
           </Button>
         </SheetTrigger>
-        <SheetContent className="overflow-auto">
+        <SheetContent className="overflow-auto ">
           <SheetHeader className="my-4">
             <SheetTitle>User Stories</SheetTitle>
           </SheetHeader>
@@ -221,14 +223,14 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
                 Add user story
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] ">
+            <DialogContent className="sm:max-w-[425px] overflow-y-auto sm:max-h-[600px]">
               <DialogHeader>
                 <DialogTitle>Add new user story</DialogTitle>
               </DialogHeader>
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-8"
+                  className="space-y-4"
                 >
                   <FormField
                     control={form.control}
@@ -245,27 +247,40 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="tickets"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Ticket Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Please enter ticket name"
-                            {...field}
-                            value={ticket}
-                            onChange={(e) => setTicket(e.target.value)}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="button" onClick={addTicket}>
-                    Add Ticket
-                  </Button>
-                  <DialogFooter>
+                  {form.getValues("tickets").map((_, index) => (
+                    <FormField
+                      key={index}
+                      control={form.control}
+                      name={`tickets.${index}`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Task Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Please enter task name"
+                              {...field}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                  <FormItem>
+                    <FormLabel>Task name</FormLabel>
+                    <div className="flex items-center space-x-2">
+                      <FormControl>
+                        <Input
+                          placeholder="Please enter task name"
+                          value={ticket}
+                          onChange={(e) => setTicket(e.target.value)}
+                        />
+                      </FormControl>
+                      <Button type="button" onClick={addTicket}>
+                        Add Task
+                      </Button>
+                    </div>
+                  </FormItem>
+                  <DialogFooter className=" flex sm:justify-center">
                     <DialogTrigger asChild>
                       <Button type="submit">Save</Button>
                     </DialogTrigger>
