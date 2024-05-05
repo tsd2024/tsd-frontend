@@ -1,9 +1,11 @@
 "use client"
 
-import React from 'react'
+import React from 'react';
+import { toast } from "sonner";
 import { Button } from '@/components/ui/button';
 
 import { GoTasklist } from "react-icons/go";
+import { BsCheckCircle } from 'react-icons/bs';
 import { useSearchParams } from 'next/navigation'
 
 import { LobbyResultSheet } from './LobbyResultSheet';
@@ -26,20 +28,32 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
         handleCardSelection,
         revealCards,
         openResultsSheet,
-        setIsResultSheetOpen
+        setIsResultSheetOpen,
+        copyInviteLink
     } = useGameLogic(roomId, playerId);
 
     return (
         <div className="flex flex-row w-full h-screen">
-            <GameRoomSidePanel 
-                joinedPlayers={joinedPlayers} 
+            <GameRoomSidePanel
+                joinedPlayers={joinedPlayers}
             />
             <div className='flex flex-col w-4/5 p-4'>
                 {/* Header */}
                 <div className="flex flex-row w-full justify-between">
                     <h1 className="text-3xl font-bold">Room {roomId}</h1>
                     <div className="flex flex-row space-x-4 items-center mr-2">
-                        <Button variant={"outline"}>Invite players</Button>
+                        <Button
+                            variant={"outline"}
+                            onClick={() => {
+                                copyInviteLink();
+                                toast("Invite link has been copied!", {
+                                    duration: 3000,
+                                    position: 'bottom-left',
+                                    icon: <BsCheckCircle className="text-green-500"/>
+                                });
+                            }}>
+                            Invite players
+                        </Button>
                         <Button variant={"outline"}>
                             <GoTasklist className="h-full w-auto" />
                         </Button>
