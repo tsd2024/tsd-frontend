@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Button } from '@/components/ui/button';
 
 import {
@@ -11,97 +11,28 @@ import {
 } from "@/components/ui/card"
 
 import { GoTasklist } from "react-icons/go";
-import useWebSocket from 'react-use-websocket';
-import ActionType from '@/types/ActionType';
-import Player from '@/types/Player';
-
 import { useSearchParams } from 'next/navigation'
 
 import { LobbyResultSheet } from './LobbyResultSheet';
-
+import useGameLogic from './use-game-logic';
 
 export default function RoomPage({ params }: { params: { roomId: string } }) {
-    const BACKEND_URL = process.env.BACKEND_URL;
-    const WEBSOCKET_PROTOCOL = process.env.WEBSOCKET_PROTOCOL;
-
     const searchParams = useSearchParams()
     const playerId = searchParams.get('playerId')
     const isAdmin = searchParams.get('admin') === 'true';
     const roomId = params.roomId;
 
-    const [joinedPlayers, setJoinedPlayers] = useState<Player[]>([]);
-    const [selectedCard, setSelectedCard] = useState<number | null>(null);
-    const [roundConcluded, setRoundConcluded] = useState<boolean>(false);
-    const [isResultSheetOpen, setIsResultSheetOpen] = useState<boolean>(false);
-    const [firstResultSheetOpen, setFirstResultSheetOpen] = useState<boolean>(false);
-
-    const cards = [1, 2, 3, 5, 8, 13, 21]
-
-    const handleCardSelection = (card: number) => {
-        if (selectedCard === card) {
-            setSelectedCard(null);
-            cancelCard();
-        } else {
-            setSelectedCard(card);
-            playCard(card);
-        }
-    };
-
-    const { sendMessage, lastMessage, readyState } = useWebSocket(`${WEBSOCKET_PROTOCOL}://${BACKEND_URL}/api/v1/room`, {
-        shouldReconnect: () => true,
-        onOpen: () => {
-            const joinData = {
-                action: ActionType.JOIN,
-                value: { lobby_id: roomId, player_id: playerId }
-            }
-            sendMessage(JSON.stringify(joinData));
-        },
-        onMessage: (event) => {
-            let receiveData = JSON.parse(event.data);
-            console.log(receiveData)
-
-            if (receiveData.action === ActionType.LOBBY_STATE && receiveData.value.reveal_ready && !firstResultSheetOpen) {
-                setFirstResultSheetOpen(true);
-                openResultsSheet();
-            }
-
-            if (receiveData.action === ActionType.LOBBY_STATE) {
-                const players = receiveData.value.players
-                setJoinedPlayers(players);
-                if (receiveData.value.reveal_ready) {
-                    setRoundConcluded(true);
-                }
-            }
-        },
-    });
-
-    const playCard = (card: number) => {
-        const playCardData = {
-            action: ActionType.PLAY_CARD,
-            value: { lobby_id: roomId, player_id: playerId, card: card }
-        }
-        sendMessage(JSON.stringify(playCardData));
-    }
-
-    const revealCards = () => {
-        const revealData = {
-            action: ActionType.REVEAL,
-            value: { lobby_id: roomId, player_id: playerId }
-        }
-        sendMessage(JSON.stringify(revealData));
-    }
-
-    const cancelCard = () => {
-        const cancelCardData = {
-            action: ActionType.CANCEL,
-            value: { lobby_id: roomId, player_id: playerId }
-        }
-        sendMessage(JSON.stringify(cancelCardData));
-    };
-
-    const openResultsSheet = () => {
-        setIsResultSheetOpen(true);
-    }
+    const {
+        joinedPlayers,
+        selectedCard,
+        roundConcluded,
+        isResultSheetOpen,
+        cards,
+        handleCardSelection,
+        revealCards,
+        openResultsSheet,
+        setIsResultSheetOpen
+    } = useGameLogic(roomId, playerId);
 
     return (
         <div className="flex flex-row w-full h-screen">
