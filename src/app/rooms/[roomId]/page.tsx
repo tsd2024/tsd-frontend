@@ -151,7 +151,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                                 Show cards
                             </Button>
                         )}
-                        {true && (
+                        {roundConcluded && (
                             <Button variant="default" className={!isAdmin ? "w-full" : "w-1/2"} onClick={openResultsSheet}>
                                 Results
                             </Button>
