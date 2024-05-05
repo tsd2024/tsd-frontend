@@ -103,7 +103,8 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
         console.log(newUserStory.title);
         console.log(newUserStory.user_story_id);
       };
-    
+      
+      
       const deleteUserStory = (userStoryToDelete: UserStory) => {
         if (selectedUserStory?.user_story_id === userStoryToDelete.user_story_id) {
             setSelectedUserStory(null);
