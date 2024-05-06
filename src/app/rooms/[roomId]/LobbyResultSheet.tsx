@@ -28,6 +28,10 @@ interface LobbyResultSheetProps {
     isOpen: boolean;
     onOpenChange: Dispatch<SetStateAction<boolean>>;
     roundConcluded: boolean;
+    currentRound: number;
+    goToNextRound: () => void;
+    navigateAtTheEndOfGame: () => void;
+    numberOfRounds: number | null;
 }
 
 export const LobbyResultSheet = (props: LobbyResultSheetProps) => {
@@ -39,7 +43,7 @@ export const LobbyResultSheet = (props: LobbyResultSheetProps) => {
                 <SheetHeader>
                     <SheetTitle>Round results</SheetTitle>
                     <SheetDescription>
-                    The round results are in! Take a look at what each player has chosen for this round. You can review their selections and proceed to the next round when ready.
+                        The round results are in! Take a look at what each player has chosen for this round. You can review their selections and proceed to the next round when ready.
                     </SheetDescription>
                 </SheetHeader>
                 <div className="flex flex-row space-x-4 m-5">
@@ -60,7 +64,15 @@ export const LobbyResultSheet = (props: LobbyResultSheetProps) => {
                 </div>
                 <SheetFooter className="">
                     <SheetClose asChild>
-                        <Button type="submit">Next round</Button>
+                        {props.currentRound !== props.numberOfRounds && props.isAdmin ? (
+                            <Button type="submit" onClick={props.goToNextRound}>
+                                Next round
+                            </Button>
+                        ) : props.currentRound === props.numberOfRounds ? (
+                            <Button type="submit" onClick={props.navigateAtTheEndOfGame}>
+                                End game
+                            </Button>
+                        ) : null}
                     </SheetClose>
                 </SheetFooter>
             </SheetContent>
