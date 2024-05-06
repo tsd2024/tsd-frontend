@@ -44,6 +44,7 @@ import {
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { FormUserStory } from "./FormUserStory";
 import { UpdateUserStory } from "./UpdateUserStory";
+import ImportDialog from "./ImportDialog";
 
 interface UserStoriesPanelProps {
   userStories: UserStory[];
@@ -51,6 +52,7 @@ interface UserStoriesPanelProps {
   deleteUserStory: (userStory: UserStory) => void;
   updateUserStory: (userStory: UserStory) => void;
   setSelectedUserStory: (userStory: UserStory) => void;
+  roomId: string;
 }
 
 export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
@@ -73,7 +75,13 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
         </SheetTrigger>
         <SheetContent className="overflow-auto ">
           <SheetHeader className="my-4">
-            <SheetTitle>User Stories</SheetTitle>
+            <div className="flex flex-row items-center space-x-4 justify-between">
+              <SheetTitle>User Stories</SheetTitle>
+              <ImportDialog 
+                roomId={props.roomId}
+              />
+            </div>
+
           </SheetHeader>
           <div className="flex flex-col space-y-4">
             {props.userStories.map((userStory) => (

@@ -31,8 +31,8 @@ export default function CreateRoomPage() {
     });
 
     const router = useRouter();
-    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-    const WEBSOCKET_PROTOCOL = process.env.NEXT_PUBLIC_WEBSOCKET_PROTOCOL;
+    const BACKEND_URL = process.env.BACKEND_URL;
+    const WEBSOCKET_PROTOCOL = process.env.WEBSOCKET_PROTOCOL;
 
     const generateId = () => {
         return uuidv4(); // <-- Generate UUID
