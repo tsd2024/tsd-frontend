@@ -1,9 +1,12 @@
 "use client";
 
 import React from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 import { useSearchParams } from "next/navigation";
+import { GoTasklist } from "react-icons/go";
+import { BsCheckCircle } from 'react-icons/bs';
 
 import { LobbyResultSheet } from "./LobbyResultSheet";
 import useGameLogic from "./use-game-logic";
@@ -34,6 +37,10 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
     setSelectedUserStory,
     selectedUserStory,
     updateUserStory,
+    copyInviteLink,
+    goToNextRound,
+    navigateAtTheEndOfGame,
+    numberOfRounds
   } = useGameLogic(roomId, playerId);
 
   return (
@@ -44,7 +51,18 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
         <div className="flex flex-row w-full justify-between">
           <h1 className="text-3xl font-bold">Room {roomId}</h1>
           <div className="flex flex-row space-x-4 items-center mr-2">
-            <Button variant={"outline"}>Invite players</Button>
+            <Button
+                variant={"outline"}
+                onClick={() => {
+                    copyInviteLink();
+                    toast("Invite link has been copied!", {
+                        duration: 3000,
+                        position: 'bottom-left',
+                        icon: <BsCheckCircle className="text-green-500"/>
+                    });
+                }}>
+                Invite players
+            </Button>
             <UserStoriesPanel
               userStories={userStories}
               createUserStory={createUserStory}
@@ -68,7 +86,6 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                 <IoClose className="h-full w-auto" />
               </Button>
           */}
-
             </div>
           )}
           <GameTable />
