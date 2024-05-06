@@ -13,7 +13,7 @@ import {
 
 import {
     Card,
-    CardDescription,
+    CardContent,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
@@ -48,17 +48,17 @@ export const LobbyResultSheet = (props: LobbyResultSheetProps) => {
                 </SheetHeader>
                 <div className="flex flex-row space-x-4 m-5">
                     {props.joinedPlayers.map((player) => (
-                        <Card key={player.player_id} className="">
-                            <CardHeader>
+                        <Card key={player.player_id} className="bg-primary-foreground">
+                            <CardHeader className="py-2 bg-header rounded-t-md">
                                 <CardTitle className="flex items-center justify-center">{player.player_id}</CardTitle>
-                                <CardDescription>
-                                    <div className="flex flex-row space-x-4 items-center">
-                                        {/* <GiCardJoker className="w-12 h-12"/> */}
-                                        <p>Chosen card: </p>
-                                        <p className="text-white font-bold">{props.roundConcluded ? player.card : ''}</p>
-                                    </div>
-                                </CardDescription>
                             </CardHeader>
+                            <CardContent className="p-2">
+                                <div className="flex flex-row space-x-4 items-center m-4">
+                                    <p>Chosen card: </p>
+                                    <p className="text-white font-bold text-xl">{props.roundConcluded ? player.card : ''}</p>
+                                    <GiCardJoker className="w-12 h-12"/>
+                                </div>
+                            </CardContent>
                         </Card>
                     ))}
                 </div>

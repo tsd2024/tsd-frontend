@@ -2,15 +2,13 @@ import React, { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import UserStory from "@/types/UserStory";
-import { MdDeleteForever } from "react-icons/md";
+import { CiExport } from "react-icons/ci";
 
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { GoTasklist } from "react-icons/go";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
@@ -29,9 +27,6 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -52,6 +47,7 @@ interface UserStoriesPanelProps {
   deleteUserStory: (userStory: UserStory) => void;
   updateUserStory: (userStory: UserStory) => void;
   setSelectedUserStory: (userStory: UserStory) => void;
+  exportUserStories: () => void;
   roomId: string;
 }
 
@@ -77,16 +73,24 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
           <SheetHeader className="my-4">
             <div className="flex flex-row items-center space-x-4 justify-between">
               <SheetTitle>User Stories</SheetTitle>
-              <ImportDialog 
-                roomId={props.roomId}
-              />
+
+              {/* Import and export buttons */}
+              <div className="flex flex-row space-x-2">
+                <ImportDialog
+                  roomId={props.roomId}
+                />
+                <Button variant="outline" onClick={props.exportUserStories}>
+                  <CiExport />
+                </Button>
+              </div>
+
             </div>
 
           </SheetHeader>
           <div className="flex flex-col space-y-4">
             {props.userStories.map((userStory) => (
               <Card key={userStory.story_id} className="bg-primary-foreground">
-                <CardHeader className="py-2 bg-header rounded-md pr-2">
+                <CardHeader className="py-2 bg-header rounded-t-md pr-2">
                   <div className="flex justify-between">
                     <CardTitle className="text-lg pt-2">
                       {userStory.story_name}
