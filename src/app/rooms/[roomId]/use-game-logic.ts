@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'
 import useWebSocket from 'react-use-websocket';
 
 import ActionType from '@/types/ActionType';
@@ -18,9 +19,12 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
     const [roundConcluded, setRoundConcluded] = useState<boolean>(false);
     const [isResultSheetOpen, setIsResultSheetOpen] = useState<boolean>(false);
     const [firstResultSheetOpen, setFirstResultSheetOpen] = useState<boolean>(false);
+    const [currentRound, setCurrentRound] = useState<number>(1);
+    const [numberOfRounds, setNumberOfRounds] = useState<number | null>(null);
 
     const cards = [1, 2, 3, 5, 8, 13, 21]
-    
+    const router = useRouter();
+
     const handleCardSelection = (card: number) => {
         if (selectedCard === card) {
             setSelectedCard(null);
@@ -57,11 +61,24 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
 
                 if (receiveData.action === ActionType.LOBBY_STATE) {
                     const players = receiveData.value.players as Player[];
+                    setNumberOfRounds(receiveData.value.number_of_rounds);
+                    setCurrentRound(receiveData.value.round_number);
                     setJoinedPlayers(players);
                     if (receiveData.value.reveal_ready) {
                         setRoundConcluded(true);
                     }
                 }
+
+                if (receiveData.action === ActionType.NEXT_ROUND) {
+                    console.log("HERE")
+                    setSelectedCard(null);
+                    // reset results sheet open
+                    setFirstResultSheetOpen(false);
+                    // reset roundConcluded to close the results sheet
+                    setRoundConcluded(false);
+                    setIsResultSheetOpen(false);
+                }
+
             }
         }
     );
@@ -90,6 +107,25 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
         sendMessage(JSON.stringify(cancelCardData));
     };
 
+    const goToNextRound = () => {
+        const nextRoundData: WebSocketMessage = {
+            action: ActionType.NEXT_ROUND,
+            value: { lobby_id: roomId, player_id: playerId }
+        };
+        sendMessage(JSON.stringify(nextRoundData));
+
+        // unclick all cards
+        setSelectedCard(null);
+        // reset results sheet open
+        setFirstResultSheetOpen(false);
+        // reset roundConcluded to close the results sheet
+        setRoundConcluded(false);
+    };
+
+    const navigateAtTheEndOfGame = () => {
+        router.push(`/create-room`)
+    }
+
     const openResultsSheet = () => {
         setIsResultSheetOpen(true);
     };
@@ -114,7 +150,11 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
         readyState,
         cards,
         openResultsSheet,
-        copyInviteLink
+        copyInviteLink,
+        goToNextRound,
+        currentRound,
+        navigateAtTheEndOfGame,
+        numberOfRounds
     };
 };
 

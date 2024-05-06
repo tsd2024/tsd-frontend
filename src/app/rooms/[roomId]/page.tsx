@@ -25,11 +25,15 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
         roundConcluded,
         isResultSheetOpen,
         cards,
+        currentRound,
         handleCardSelection,
         revealCards,
         openResultsSheet,
         setIsResultSheetOpen,
-        copyInviteLink
+        copyInviteLink,
+        goToNextRound,
+        navigateAtTheEndOfGame,
+        numberOfRounds
     } = useGameLogic(roomId, playerId);
 
     return (
@@ -81,6 +85,10 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                             isOpen={isResultSheetOpen}
                             onOpenChange={setIsResultSheetOpen}
                             roundConcluded={roundConcluded}
+                            goToNextRound={goToNextRound}
+                            currentRound={currentRound}
+                            navigateAtTheEndOfGame={navigateAtTheEndOfGame}
+                            numberOfRounds={numberOfRounds}
                         />
                     </div>
                 </div>
