@@ -3,34 +3,9 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import UserStory from "@/types/UserStory";
 import { MdDeleteForever } from "react-icons/md";
-import { Input } from "@/components/ui/input";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { v4 as uuidv4 } from "uuid";
+
 import { BsThreeDotsVertical } from "react-icons/bs";
-
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-
-import { GoTasklist, GoPlus } from "react-icons/go";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-
+import { GoTasklist } from "react-icons/go";
 import {
   Sheet,
   SheetClose,
@@ -67,58 +42,19 @@ import {
 } from "@/components/ui/collapsible";
 
 import { CaretSortIcon } from "@radix-ui/react-icons";
+import { FormUserStory } from "./FormUserStory";
+import { UpdateUserStory } from "./UpdateUserStory";
 
 interface UserStoriesPanelProps {
   userStories: UserStory[];
   createUserStory: (userStory: UserStory) => void;
   deleteUserStory: (userStory: UserStory) => void;
+  updateUserStory: (userStory: UserStory) => void;
   setSelectedUserStory: (userStory: UserStory) => void;
 }
 
 export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
-  const formSchema = z.object({
-    story_name: z.string().min(3),
-    tickets: z.array(z.string()),
-  });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      story_name: "",
-      tickets: [],
-    },
-  });
-
-  const generateId = () => {
-    return uuidv4(); // <-- Generate UUID
-  };
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const userStoryId = generateId();
-    const newUserStory: UserStory = {
-      story_id: userStoryId,
-      story_name: values.story_name,
-      story_points: 0,
-      tickets: values.tickets.map((ticketName: string) => ({
-        ticket_name: ticketName,
-      })),
-    };
-    props.createUserStory(newUserStory);
-    console.log(newUserStory);
-    form.reset();
-    setTicket("")
-  }
-
-  const [ticket, setTicket] = useState("");
   const [isOpen, setIsOpen] = useState<{ [key: string]: boolean }>({});
-
-  const addTicket = () => {
-    if (ticket.trim() !== "") {
-      const updatedTickets = [...form.getValues("tickets"), ticket];
-      setTicket("");
-      form.setValue("tickets", updatedTickets);
-    }
-  };
 
   const toggleCollapsible = (userStoryId: string) => {
     setIsOpen((prevState) => ({
@@ -129,7 +65,7 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
   return (
     <>
       {/* User Stories */}
-      <Sheet >
+      <Sheet>
         <SheetTrigger asChild>
           <Button variant={"outline"}>
             <GoTasklist className="h-full w-auto" />
@@ -141,25 +77,29 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
           </SheetHeader>
           <div className="flex flex-col space-y-4">
             {props.userStories.map((userStory) => (
-              <Card
-                key={userStory.story_id}
-                className="bg-primary-foreground"
-              >
-                <CardHeader className="pb-3">
+              <Card key={userStory.story_id} className="bg-primary-foreground">
+                <CardHeader className="py-2 bg-header rounded-md pr-2">
                   <div className="flex justify-between">
-                    <CardTitle className="text-lg pt-2">{userStory.story_name}</CardTitle>
+                    <CardTitle className="text-lg pt-2">
+                      {userStory.story_name}
+                    </CardTitle>
                     <div className="flex-shrink-0">
                       <DropdownMenu>
                         <DropdownMenuTrigger>
                           <BsThreeDotsVertical className="h-10 w-10 hover:cursor-pointer p-2 mr-2 hover:bg-accent2 rounded-md" />
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          <DropdownMenuItem>Update</DropdownMenuItem>
-                          <DropdownMenuItem
+                        <DropdownMenuContent className="flex-col flex">
+                          <UpdateUserStory
+                            userStory={userStory}
+                            updateUserStory={props.updateUserStory}
+                          />
+                          <Button
+                            variant={"outline"}
                             onClick={() => props.deleteUserStory(userStory)}
+                            className="border-none"
                           >
                             Delete
-                          </DropdownMenuItem>
+                          </Button>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -170,9 +110,7 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
                   {userStory.tickets.length !== 0 && (
                     <Collapsible
                       open={isOpen[userStory.story_id]}
-                      onOpenChange={() =>
-                        toggleCollapsible(userStory.story_id)
-                      }
+                      onOpenChange={() => toggleCollapsible(userStory.story_id)}
                       className="w-[300px] space-y-2 m-0 p-2"
                     >
                       <CollapsibleTrigger asChild>
@@ -199,7 +137,6 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
                 <CardFooter>
                   <div className="flex justify-start items-center w-full">
                     <div className="space-x-2 flex items-center">
-
                       {/*Button to select user story to vote
                       <SheetClose asChild>
                         <Button
@@ -218,79 +155,10 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
               </Card>
             ))}
           </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant={"outline"} className="w-full my-4">
-                <GoPlus className="h-full w-auto" />
-                Add user story
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] overflow-y-auto sm:max-h-[600px]">
-              <DialogHeader>
-                <DialogTitle>Add new user story</DialogTitle>
-              </DialogHeader>
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-4"
-                >
-                  <FormField
-                    control={form.control}
-                    name="story_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Title</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Please enter user story title"
-                            {...field}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  {form.getValues("tickets").map((_, index) => (
-                    <FormField
-                      key={index}
-                      control={form.control}
-                      name={`tickets.${index}`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Task Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Please enter task name"
-                              {...field}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  ))}
-                  <FormItem>
-                    <FormLabel>Task name</FormLabel>
-                    <div className="flex items-center space-x-2">
-                      <FormControl>
-                        <Input
-                          placeholder="Please enter task name"
-                          value={ticket}
-                          onChange={(e) => setTicket(e.target.value)}
-                        />
-                      </FormControl>
-                      <Button type="button" onClick={addTicket}>
-                        Add Task
-                      </Button>
-                    </div>
-                  </FormItem>
-                  <DialogFooter className=" flex sm:justify-center">
-                    <DialogTrigger asChild>
-                      <Button type="submit">Save</Button>
-                    </DialogTrigger>
-                  </DialogFooter>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
+          <FormUserStory
+            createUserStory={props.createUserStory}
+            updateUserStory={props.updateUserStory}
+          />
           <SheetFooter></SheetFooter>
         </SheetContent>
       </Sheet>

@@ -191,6 +191,7 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
         setUserStories,
         selectedUserStory,
         setSelectedUserStory,
+        updateUserStory,
     };
 };
 

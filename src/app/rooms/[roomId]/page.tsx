@@ -33,6 +33,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
     deleteUserStory,
     setSelectedUserStory,
     selectedUserStory,
+    updateUserStory,
   } = useGameLogic(roomId, playerId);
 
   return (
@@ -49,6 +50,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
               createUserStory={createUserStory}
               deleteUserStory={deleteUserStory}
               setSelectedUserStory={setSelectedUserStory}
+              updateUserStory={updateUserStory}
             />
           </div>
         </div>
@@ -66,7 +68,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                 <IoClose className="h-full w-auto" />
               </Button>
           */}
-          
+
             </div>
           )}
           <GameTable />

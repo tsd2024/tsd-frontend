@@ -55,6 +55,9 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        header: {
+          DEFAULT: "hsl(var(--card-header))",
+        },
       },
       height: {
         "nav": "12vh",
