@@ -41,7 +41,8 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
         goToNextRound,
         navigateAtTheEndOfGame,
         numberOfRounds,
-        currentRound
+        currentRound,
+        exportUserStories
     } = useGameLogic(roomId, playerId);
 
     return (
@@ -71,6 +72,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                             setSelectedUserStory={setSelectedUserStory}
                             updateUserStory={updateUserStory}
                             roomId={roomId}
+                            exportUserStories={exportUserStories}
                         />
                     </div>
                 </div>

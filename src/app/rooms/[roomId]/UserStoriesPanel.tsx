@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import UserStory from "@/types/UserStory";
-import { MdDeleteForever } from "react-icons/md";
+import { CiExport } from "react-icons/ci";
 
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { GoTasklist } from "react-icons/go";
@@ -52,6 +52,7 @@ interface UserStoriesPanelProps {
   deleteUserStory: (userStory: UserStory) => void;
   updateUserStory: (userStory: UserStory) => void;
   setSelectedUserStory: (userStory: UserStory) => void;
+  exportUserStories: () => void;
   roomId: string;
 }
 
@@ -77,9 +78,17 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
           <SheetHeader className="my-4">
             <div className="flex flex-row items-center space-x-4 justify-between">
               <SheetTitle>User Stories</SheetTitle>
-              <ImportDialog 
-                roomId={props.roomId}
-              />
+
+              {/* Import and export buttons */}
+              <div className="flex flex-row space-x-2">
+                <ImportDialog
+                  roomId={props.roomId}
+                />
+                <Button variant="outline" onClick={props.exportUserStories}>
+                  <CiExport />
+                </Button>
+              </div>
+
             </div>
 
           </SheetHeader>

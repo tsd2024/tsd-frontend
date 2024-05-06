@@ -31,6 +31,7 @@ jobs:
           NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
           BACKEND_URL: ${{ vars.BACKEND_URL }}
           WEBSOCKET_PROTOCOL: wss
+          BACKEND_PROTOCOL: https
 
         run: |
           npx sst deploy --stage prod

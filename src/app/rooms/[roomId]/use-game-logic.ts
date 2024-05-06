@@ -166,7 +166,7 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
         const userStoryData = {
             lobby_id: roomId,
             story_id: newUserStory.story_id,   
-          };
+        };
         try {
           const response = await fetch(`${ENDPOINT_USER_STORIES}/delete`, {
             method: 'DELETE',
@@ -209,6 +209,27 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
         navigator.clipboard.writeText(lobbyLink);
     }
 
+    const exportUserStories = async () => {
+        const response = await fetch(`${ENDPOINT_USER_STORIES}/download_csv/${roomId}`);
+        if (response.ok) {
+          const csvContent = await response.text();
+        
+          const blob = new Blob([csvContent], { type: 'text/csv' });
+          const url = window.URL.createObjectURL(blob);
+          
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'user_stories.csv';
+          document.body.appendChild(a);
+        
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+      } else {
+          console.error('Failed to download file:', response.statusText);
+      }
+    }
+
 
     return {
         joinedPlayers,
@@ -236,7 +257,8 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
         goToNextRound,
         currentRound,
         navigateAtTheEndOfGame,
-        numberOfRounds
+        numberOfRounds,
+        exportUserStories
     };
 };
 
