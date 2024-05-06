@@ -1,9 +1,9 @@
 import Ticket from "./Ticket";
 
 type UserStory = {
-    user_story_id: string;
-    title: string;
-    points: number;
+    story_id: string;
+    story_name: string;
+    story_points: number;
     tickets: Ticket[]; 
 };
 

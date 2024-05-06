@@ -11,8 +11,9 @@ interface WebSocketMessage {
 }
 
 const useGameLogic = (roomId: string, playerId: string | null) => {
-    const BACKEND_URL = process.env.BACKEND_URL;
-    const WEBSOCKET_PROTOCOL = process.env.WEBSOCKET_PROTOCOL;
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const WEBSOCKET_PROTOCOL = process.env.NEXT_PUBLIC_WEBSOCKET_PROTOCOL;
+    const ENDPOINT_USER_STORIES = 'http://localhost:8009/api/v1/story'
 
     const [joinedPlayers, setJoinedPlayers] = useState<Player[]>([]);
     const [selectedCard, setSelectedCard] = useState<number | null>(null);
@@ -62,6 +63,9 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
                 if (receiveData.action === ActionType.LOBBY_STATE) {
                     const players = receiveData.value.players as Player[];
                     setJoinedPlayers(players);
+                    const userStories = receiveData.value.user_stories as UserStory[];
+                    setUserStories(userStories);
+                    setSelectedUserStory(userStories.find(story => story.story_id === receiveData.value.current_user_story_id) || null);
                     if (receiveData.value.reveal_ready) {
                         setRoundConcluded(true);
                     }
@@ -97,22 +101,74 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
     const openResultsSheet = () => {
         setIsResultSheetOpen(true);
     };
-    
-      const createUserStory = (newUserStory: UserStory) => {
-        setUserStories([...userStories, newUserStory]);
-        console.log(newUserStory.title);
-        console.log(newUserStory.user_story_id);
+      
+    const updateUserStory = async (newUserStory: UserStory) => {
+      const userStoryData = {
+          lobby_id: roomId,
+          story_id: newUserStory.story_id,
+          story_name: newUserStory.story_name,
+          tickets: newUserStory.tickets.map(ticket => ({
+            ticket_name: ticket.ticket_name
+          }))
+        };
+      try {
+        const response = await fetch(`${ENDPOINT_USER_STORIES}/update`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userStoryData)
+        });
+        //setUserStories([...userStories, newUserStory]);
+        const data = await response.json();
+        
+        console.log(data);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+      const createUserStory = async (newUserStory: UserStory) => {
+        const userStoryData = {
+            lobby_id: roomId,
+            story_name: newUserStory.story_name,
+            tickets: newUserStory.tickets.map(ticket => ({
+              ticket_name: ticket.ticket_name
+            }))
+          };
+        try {
+          const response = await fetch(`${ENDPOINT_USER_STORIES}/add`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userStoryData)
+          });
+          const data = await response.json();
+        } catch (error) {
+          console.error('Error:', error);
+        }
       };
       
-      
-      const deleteUserStory = (userStoryToDelete: UserStory) => {
-        if (selectedUserStory?.user_story_id === userStoryToDelete.user_story_id) {
-            setSelectedUserStory(null);
+      const deleteUserStory = async (newUserStory: UserStory) => {
+        const userStoryData = {
+            lobby_id: roomId,
+            story_id: newUserStory.story_id,   
+          };
+        try {
+          const response = await fetch(`${ENDPOINT_USER_STORIES}/delete`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userStoryData)
+          });
+          const data = await response.json();
+        } catch (error) {
+          console.error('Error:', error);
         }
-        setUserStories(
-          userStories.filter(userStory => userStory.user_story_id !== userStoryToDelete.user_story_id)
-        );
-      }; 
+      };
+      
 
     return {
         joinedPlayers,

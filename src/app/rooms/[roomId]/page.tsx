@@ -58,11 +58,15 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
           {selectedUserStory && (
             <div className="flex items-center space-x-3">
               <h3 className="font-bold">
-                Voting now: {selectedUserStory.title}
+                Voting now: {selectedUserStory.story_name}
               </h3>
+
+              {/* Button to unselect user story 
               <Button variant={"destructive"} className="h-6 p-1" onClick={() => setSelectedUserStory(null)}>
                 <IoClose className="h-full w-auto" />
               </Button>
+          */}
+          
             </div>
           )}
           <GameTable />

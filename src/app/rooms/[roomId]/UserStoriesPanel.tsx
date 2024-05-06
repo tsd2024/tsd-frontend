@@ -77,14 +77,14 @@ interface UserStoriesPanelProps {
 
 export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
   const formSchema = z.object({
-    title: z.string().min(3),
+    story_name: z.string().min(3),
     tickets: z.array(z.string()),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
+      story_name: "",
       tickets: [],
     },
   });
@@ -96,9 +96,9 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     const userStoryId = generateId();
     const newUserStory: UserStory = {
-      user_story_id: userStoryId,
-      title: values.title,
-      points: 0,
+      story_id: userStoryId,
+      story_name: values.story_name,
+      story_points: 0,
       tickets: values.tickets.map((ticketName: string) => ({
         ticket_name: ticketName,
       })),
@@ -126,10 +126,9 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
       [userStoryId]: !prevState[userStoryId],
     }));
   };
-
   return (
     <>
-      {/*User Stories*/}
+      {/* User Stories */}
       <Sheet >
         <SheetTrigger asChild>
           <Button variant={"outline"}>
@@ -143,12 +142,12 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
           <div className="flex flex-col space-y-4">
             {props.userStories.map((userStory) => (
               <Card
-                key={userStory.user_story_id}
+                key={userStory.story_id}
                 className="bg-primary-foreground"
               >
-                <CardHeader>
+                <CardHeader className="pb-3">
                   <div className="flex justify-between">
-                    <CardTitle className="text-lg">{userStory.title}</CardTitle>
+                    <CardTitle className="text-lg pt-2">{userStory.story_name}</CardTitle>
                     <div className="flex-shrink-0">
                       <DropdownMenu>
                         <DropdownMenuTrigger>
@@ -166,15 +165,15 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-2">
                   {/*Tickets*/}
                   {userStory.tickets.length !== 0 && (
                     <Collapsible
-                      open={isOpen[userStory.user_story_id]}
+                      open={isOpen[userStory.story_id]}
                       onOpenChange={() =>
-                        toggleCollapsible(userStory.user_story_id)
+                        toggleCollapsible(userStory.story_id)
                       }
-                      className="w-[280px] space-y-2"
+                      className="w-[300px] space-y-2 m-0 p-2"
                     >
                       <CollapsibleTrigger asChild>
                         <Button variant="ghost" size="sm">
@@ -198,8 +197,10 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
                   {/*Tasks*/}
                 </CardContent>
                 <CardFooter>
-                  <div className="flex justify-between items-center w-full">
+                  <div className="flex justify-start items-center w-full">
                     <div className="space-x-2 flex items-center">
+
+                      {/*Button to select user story to vote
                       <SheetClose asChild>
                         <Button
                           variant={"outline"}
@@ -209,8 +210,9 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
                           Vote this now{" "}
                         </Button>
                       </SheetClose>
+                */}
                     </div>
-                    <p className="font-bold"> Points: {userStory.points} </p>
+                    <p> Points: {userStory.story_points} </p>
                   </div>
                 </CardFooter>
               </Card>
@@ -234,7 +236,7 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
                 >
                   <FormField
                     control={form.control}
-                    name="title"
+                    name="story_name"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Title</FormLabel>
