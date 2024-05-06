@@ -112,10 +112,6 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
         };
         sendMessage(JSON.stringify(cancelCardData));
     };
-
-    const openResultsSheet = () => {
-        setIsResultSheetOpen(true);
-    };
       
     const updateUserStory = async (newUserStory: UserStory) => {
       const userStoryData = {
