@@ -12,9 +12,10 @@ interface WebSocketMessage {
 }
 
 const useGameLogic = (roomId: string, playerId: string | null) => {
-    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-    const WEBSOCKET_PROTOCOL = process.env.NEXT_PUBLIC_WEBSOCKET_PROTOCOL;
-    const ENDPOINT_USER_STORIES = 'http://localhost:8009/api/v1/story'
+    const BACKEND_URL = process.env.BACKEND_URL;
+    const WEBSOCKET_PROTOCOL = process.env.WEBSOCKET_PROTOCOL;
+    const BACKEND_PROTOCOL = process.env.BACKEND_PROTOCOL;
+    const ENDPOINT_USER_STORIES = `${BACKEND_PROTOCOL}://${BACKEND_URL}/api/v1/story`
 
     const [joinedPlayers, setJoinedPlayers] = useState<Player[]>([]);
     const [selectedCard, setSelectedCard] = useState<number | null>(null);
