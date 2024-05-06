@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Form, FormField, FormLabel, FormDescription, FormMessage, FormItem, FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRouter } from 'next/navigation'
-import ActionType from "@/types/ActionType";
+import { useSearchParams } from 'next/navigation'
+import { useEffect } from "react";
 
 const formSchema = z.object({
     lobby_id: z.string().min(3, {
@@ -22,14 +23,20 @@ export default function JoinRoomPage() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            lobby_id: "",
             nickname: "",
         },
     });
 
     const router = useRouter();
+    const searchParams = useSearchParams()
+    let roomId = searchParams.get('roomId') ?? "";
 
-    
+    useEffect(() => {
+        if (roomId) {
+            form.setValue('lobby_id', roomId);
+        }
+    }, [roomId, form]);
+
     function onSubmit(values: z.infer<typeof formSchema>) {
         console.log(values);
         router.push(`/rooms/${values.lobby_id}/?playerId=${values.nickname}&admin=false`);
@@ -48,7 +55,11 @@ export default function JoinRoomPage() {
                                 <FormItem>
                                     <FormLabel>Lobby ID</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Enter lobby ID" {...field} />
+                                        <Input 
+                                        placeholder="Enter lobby ID" 
+                                        defaultValue={roomId}
+                                        {...field} 
+                                    />
                                     </FormControl>
                                     <FormDescription>
                                         Enter the ID of the lobby you want to join.

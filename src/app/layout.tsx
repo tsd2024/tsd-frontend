@@ -4,6 +4,7 @@ import "./globals.css";
 import { SessionProvider } from "@/components/SessionProvider";
 import { ThemeProvider } from "@/components/theme-provider"
 import { TopBar } from "@/components/TopBar";
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,6 +32,7 @@ export default function RootLayout({
             <div className="flex flex-col h-screen">
               <TopBar />
               {children}
+              <Toaster/>
             </div>
 
           </SessionProvider>
