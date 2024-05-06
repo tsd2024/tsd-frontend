@@ -8,9 +8,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { GoTasklist } from "react-icons/go";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
@@ -29,9 +27,6 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -95,7 +90,7 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
           <div className="flex flex-col space-y-4">
             {props.userStories.map((userStory) => (
               <Card key={userStory.story_id} className="bg-primary-foreground">
-                <CardHeader className="py-2 bg-header rounded-md pr-2">
+                <CardHeader className="py-2 bg-header rounded-t-md pr-2">
                   <div className="flex justify-between">
                     <CardTitle className="text-lg pt-2">
                       {userStory.story_name}
