@@ -96,6 +96,9 @@ export const TopBar = () => {
                 <form className="ml-auto flex-1 sm:flex-initial">
                     <div className="relative"></div>
                 </form>
+                <div>
+                    {userName}
+                </div>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="secondary" size="icon" className="rounded-full">

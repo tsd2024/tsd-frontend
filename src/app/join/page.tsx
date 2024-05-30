@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from 'next/navigation'
 import { useSearchParams } from 'next/navigation'
 import { useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 const formSchema = z.object({
     lobby_id: z.string().min(3, {
@@ -20,6 +21,8 @@ const formSchema = z.object({
 })
 
 export default function JoinRoomPage() {
+    const { data: session } = useSession();
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -35,11 +38,13 @@ export default function JoinRoomPage() {
         if (roomId) {
             form.setValue('lobby_id', roomId);
         }
-    }, [roomId, form]);
+        if (session?.user?.name) {
+            form.setValue('nickname', session.user.name);
+        }
+    }, [roomId, form, session?.user?.name]);
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values);
-        router.push(`/rooms/${values.lobby_id}/?playerId=${values.nickname}&admin=false`);
+        router.push(`/rooms/${values.lobby_id}`);
     }
 
     return (
@@ -55,11 +60,11 @@ export default function JoinRoomPage() {
                                 <FormItem>
                                     <FormLabel>Lobby ID</FormLabel>
                                     <FormControl>
-                                        <Input 
-                                        placeholder="Enter lobby ID" 
-                                        defaultValue={roomId}
-                                        {...field} 
-                                    />
+                                        <Input
+                                            placeholder="Enter lobby ID"
+                                            defaultValue={roomId}
+                                            {...field}
+                                        />
                                     </FormControl>
                                     <FormDescription>
                                         Enter the ID of the lobby you want to join.
