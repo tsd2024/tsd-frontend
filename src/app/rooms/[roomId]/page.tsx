@@ -15,7 +15,8 @@ import useGameLogic from "./use-game-logic";
 export default function RoomPage({ params }: { params: { roomId: string } }) {
     const { data: session } = useSession()
 
-    const playerId = session?.user?.name;
+    const playerId = session?.user?.email;
+    const playerName = session?.user?.name;
     const roomId = params.roomId;
 
     const {
@@ -41,7 +42,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
         currentRound,
         exportUserStories,
         adminId
-    } = useGameLogic(roomId, playerId!!);
+    } = useGameLogic(roomId, playerId!!, playerName!!);
 
     const isAdmin = adminId === playerId;
 

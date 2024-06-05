@@ -69,7 +69,7 @@ export default function CreateRoomPage() {
         console.log("Creating lobby")
         let data = {
             action: ActionType.CREATE,
-            value: { max_players: maxPlayers, number_of_rounds: numberOfRounds, lobby_name: lobbyName, admin_id: session?.user?.name }
+            value: { max_players: maxPlayers, number_of_rounds: numberOfRounds, lobby_name: lobbyName, admin_id: session?.user?.email, admin_name: session?.user?.name}
         }
         sendMessage(JSON.stringify(data));
     };
