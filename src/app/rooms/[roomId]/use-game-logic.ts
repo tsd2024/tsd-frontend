@@ -13,7 +13,7 @@ interface WebSocketMessage {
     value: any;
 }
 
-const useGameLogic = (roomId: string, playerId: string | null) => {
+const useGameLogic = (roomId: string, playerId: string | null, playerName: string | null) => {
     const BACKEND_URL = process.env.BACKEND_URL;
     const WEBSOCKET_PROTOCOL = process.env.WEBSOCKET_PROTOCOL;
     const BACKEND_PROTOCOL = process.env.BACKEND_PROTOCOL;
@@ -60,7 +60,7 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
             onOpen: () => {
                 const joinData: WebSocketMessage = {
                     action: ActionType.JOIN,
-                    value: { lobby_id: roomId, player_id: playerId }
+                    value: { lobby_id: roomId, player_id: playerId, player_name: playerName}
                 };
                 sendMessage(JSON.stringify(joinData));
             },
