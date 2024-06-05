@@ -6,7 +6,7 @@ import ActionType from '@/types/ActionType';
 import Player from '@/types/Player';
 import UserStory from '@/types/UserStory';
 
-import { useSession, signIn, signOut } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 
 interface WebSocketMessage {
     action: ActionType;

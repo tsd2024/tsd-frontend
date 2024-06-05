@@ -3,18 +3,14 @@
 import React from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-
-import { useSearchParams } from "next/navigation";
-import { GoTasklist } from "react-icons/go";
 import { BsCheckCircle } from 'react-icons/bs';
-
 import { LobbyResultSheet } from "./LobbyResultSheet";
-import useGameLogic from "./use-game-logic";
 import { GameTable } from "./GameTable";
 import { GameRoomSidePanel } from "./GameRoomSidePanel";
 import { UserStoriesPanel } from "./UserStoriesPanel";
-import { IoClose } from "react-icons/io5";
 import { useSession } from "next-auth/react";
+
+import useGameLogic from "./use-game-logic";
 
 export default function RoomPage({ params }: { params: { roomId: string } }) {
     const { data: session } = useSession()
