@@ -1,15 +1,5 @@
 "use client";
 
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuIndicator,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  NavigationMenuViewport,
-} from "@/components/ui/navigation-menu";
 import { Lobby, columns } from "./columns";
 import { DataTable } from "./data-table";
 import { Button } from "@/components/ui/button";
@@ -27,28 +17,27 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { useTheme } from "next-themes";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { number } from "zod";
+
 import React from "react";
+import MySpinner from "@/components/ui/my-spinner";
 
 export default function DashboardPage() {
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
   const userEmail = session?.user?.email;
   const [historyData, setHistoryData] = useState([]);
-  
+  const [loading, setLoading] = useState(true);
 
   interface LobbyData {
     player_id: string;
     lobby_id: string;
     lobby_metadata: string;
-    // Add more properties if necessary
   }
 
-  const getGamesHistory = async () => {
+  const getGamesHistory = async (idToken: string) => {
     try {
       const response = await fetch(
         `http://localhost:8009/api/v1/lobby_history`,
@@ -56,7 +45,7 @@ export default function DashboardPage() {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${session?.id_token}`,
+            Authorization: `Bearer ${idToken}`,
           },
         }
       );
@@ -93,7 +82,7 @@ export default function DashboardPage() {
         };
       });
 
-
+      console.log("Combined data:", combinedData);
       return combinedData;
     } catch (error) {
       console.error("Error:", error);
@@ -107,9 +96,18 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchHistoryData = async () => {
-      const data = await getGamesHistory();
-      setHistoryData(data);
-      console.log(data); // Log the updated data
+      try {
+        if (session?.id_token) {
+          setLoading(true); 
+          const data = await getGamesHistory(session.id_token); 
+          setHistoryData(data);
+          setLoading(false); 
+          console.log(data); 
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setLoading(false); 
+      }
     };
 
     fetchHistoryData();
@@ -121,7 +119,13 @@ export default function DashboardPage() {
         <div className="ml-6 w-full flex flex-col gap-8 pt-6 pb-20">
           <h1 className="text-4xl font-bold">Dashboard</h1>
           <div className="container mx-auto py-4">
-            <DataTable columns={columns} data={historyData} />
+            {loading ? (
+              <div className="flex items-center justify-center h-80">
+                <MySpinner />
+              </div>
+            ) : (
+              <DataTable columns={columns} data={historyData} />
+            )}
           </div>
           <div className="flex justify-center w-full gap-4 pb-8">
             <AlertDialog>
