@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 
 export function GoogleSignInButton() {
     const searchParams = useSearchParams()
-    let redirectUrl = searchParams.get('callbackUrl') ?? "";
+    let redirectUrl = searchParams.get('callbackUrl') ?? "/dashboard";
 
     const handleClick = () => {
         signIn("google", { callbackUrl: redirectUrl});
