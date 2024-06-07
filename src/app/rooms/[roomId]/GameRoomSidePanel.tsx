@@ -3,7 +3,6 @@ import React from 'react'
 import {
     Card,
     CardContent,
-    CardDescription,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
@@ -27,7 +26,7 @@ export const GameRoomSidePanel = (props: GameRoomSidePanelProps) => {
                     {props.joinedPlayers.map((player) => (
                         <Card key={player.player_id} className="bg-primary-foreground">
                             <CardHeader className="py-2 bg-header rounded-t-md">
-                                <CardTitle className="flex justify-center items-center">{player.player_id}</CardTitle>
+                                <CardTitle className="flex justify-center items-center">{player.player_name}</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="flex flex-row space-x-4 items-center justify-center mt-6">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'
 import useWebSocket from 'react-use-websocket';
 
@@ -6,17 +6,20 @@ import ActionType from '@/types/ActionType';
 import Player from '@/types/Player';
 import UserStory from '@/types/UserStory';
 
+import { useSession } from 'next-auth/react'
+
 interface WebSocketMessage {
     action: ActionType;
     value: any;
 }
 
-const useGameLogic = (roomId: string, playerId: string | null) => {
+const useGameLogic = (roomId: string, playerId: string | null, playerName: string | null) => {
     const BACKEND_URL = process.env.BACKEND_URL;
     const WEBSOCKET_PROTOCOL = process.env.WEBSOCKET_PROTOCOL;
     const BACKEND_PROTOCOL = process.env.BACKEND_PROTOCOL;
     const ENDPOINT_USER_STORIES = `${BACKEND_PROTOCOL}://${BACKEND_URL}/api/v1/story`
 
+    const [adminId, setAdminId] = useState<string | null>(null);
     const [joinedPlayers, setJoinedPlayers] = useState<Player[]>([]);
     const [selectedCard, setSelectedCard] = useState<number | null>(null);
     const [roundConcluded, setRoundConcluded] = useState<boolean>(false);
@@ -28,6 +31,15 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
     const cards = [1, 2, 3, 5, 8, 13, 21]
     const [currentRound, setCurrentRound] = useState<number>(1);
     const [numberOfRounds, setNumberOfRounds] = useState<number | null>(null);
+    const [socketUrl, setSocketUrl] = useState<null | string>(null);
+
+    const { data: session } = useSession()
+
+    useEffect(() => {
+        if (session?.id_token) {
+            setSocketUrl(`${WEBSOCKET_PROTOCOL}://${BACKEND_URL}/api/v1/room?token=${session.id_token}`);
+        }
+    }, [session]);
 
     const router = useRouter();
 
@@ -42,18 +54,19 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
     };
 
     const { sendMessage, lastMessage, readyState } = useWebSocket<WebSocketMessage>(
-        `${WEBSOCKET_PROTOCOL}://${BACKEND_URL}/api/v1/room`,
+        socketUrl,
         {
             shouldReconnect: () => true,
             onOpen: () => {
                 const joinData: WebSocketMessage = {
                     action: ActionType.JOIN,
-                    value: { lobby_id: roomId, player_id: playerId }
+                    value: { lobby_id: roomId, player_id: playerId, player_name: playerName}
                 };
                 sendMessage(JSON.stringify(joinData));
             },
             onMessage: (event) => {
                 let receiveData = JSON.parse(event.data) as WebSocketMessage;
+                console.log("Received data");
                 console.log(receiveData);
 
                 if (
@@ -68,6 +81,7 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
                 if (receiveData.action === ActionType.LOBBY_STATE) {
                     const players = receiveData.value.players as Player[];
                     const userStories = receiveData.value.user_stories as UserStory[];
+                    setAdminId(receiveData.value.admin_id);
                     setUserStories(userStories);
                     setSelectedUserStory(userStories.find(story => story.story_id === receiveData.value.current_user_story_id) || null);
                     setNumberOfRounds(receiveData.value.number_of_rounds);
@@ -127,14 +141,13 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
         const response = await fetch(`${ENDPOINT_USER_STORIES}/update`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.id_token}`
           },
           body: JSON.stringify(userStoryData)
         });
         //setUserStories([...userStories, newUserStory]);
         const data = await response.json();
-        
-        console.log(data);
       } catch (error) {
         console.error('Error:', error);
       }
@@ -152,7 +165,8 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
           const response = await fetch(`${ENDPOINT_USER_STORIES}/add`, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session?.id_token}`
             },
             body: JSON.stringify(userStoryData)
           });
@@ -171,7 +185,8 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
           const response = await fetch(`${ENDPOINT_USER_STORIES}/delete`, {
             method: 'DELETE',
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session?.id_token}`
             },
             body: JSON.stringify(userStoryData)
           });
@@ -230,7 +245,6 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
       }
     }
 
-
     return {
         joinedPlayers,
         setJoinedPlayers,
@@ -258,7 +272,8 @@ const useGameLogic = (roomId: string, playerId: string | null) => {
         currentRound,
         navigateAtTheEndOfGame,
         numberOfRounds,
-        exportUserStories
+        exportUserStories,
+        adminId
     };
 };
 
