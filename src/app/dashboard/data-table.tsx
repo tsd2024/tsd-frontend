@@ -18,6 +18,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 
 import { Button } from "@/components/ui/button";
@@ -71,10 +73,10 @@ export function DataTable<TData, TValue>({
     <div className="w-full">
       <div className="flex items-center py-4 w-1/4">
         <Input
-          placeholder="Search game by name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          placeholder="Search game by lobby ID..."
+          value={(table.getColumn("lobby_id")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("lobby_id")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -114,7 +116,7 @@ export function DataTable<TData, TValue>({
                       )}
                     </TableCell>
                   ))}
-                
+                   
                 </TableRow>
               ))
             ) : (

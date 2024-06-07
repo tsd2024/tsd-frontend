@@ -10,7 +10,7 @@ import {
   NavigationMenuTrigger,
   NavigationMenuViewport,
 } from "@/components/ui/navigation-menu";
-import { Game, columns } from "./columns";
+import { Lobby, columns } from "./columns";
 import { DataTable } from "./data-table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -30,84 +30,90 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "next-themes";
 import { useSession, signOut } from "next-auth/react";
-
-const data = [
-  {
-    id: "lobby-1",
-    name: "Alpha Squad",
-    date: "09-12-2021",
-  },
-  {
-    id: "lobby-2",
-    name: "Shadow Walkers",
-    date: "09-12-2024",
-  },
-  {
-    id: "lobby-3",
-    name: "Phoenix Rising",
-    date: "14-12-2024",
-  },
-  {
-    id: "lobby-4",
-    name: "Stormbreakers",
-    date: "03-05-2023",
-  },
-  {
-    id: "lobby-5",
-    name: "Mystic Legion",
-    date: "20-08-2022",
-  },
-  {
-    id: "lobby-6",
-    name: "Eclipse Vanguard",
-    date: "17-10-2023",
-  },
-  {
-    id: "lobby-7",
-    name: "Chrono Knights",
-    date: "05-02-2025",
-  },
-  {
-    id: "lobby-8",
-    name: "Spectral Guardians",
-    date: "21-11-2022",
-  },
-  {
-    id: "lobby-9",
-    name: "Titan Syndicate",
-    date: "12-09-2023",
-  },
-  {
-    id: "lobby-10",
-    name: "Astral Reapers",
-    date: "08-04-2024",
-  },
-  {
-    id: "lobby-11",
-    name: "Nova Elite",
-    date: "30-06-2025",
-  },
-  {
-    id: "lobby-12",
-    name: "Galactic Sentinels",
-    date: "15-03-2023",
-  },
-  {
-    id: "lobby-13",
-    name: "Nebula Nomads",
-    date: "18-07-2022",
-  },
-];
+import { useEffect, useState } from "react";
+import { number } from "zod";
+import React from "react";
 
 export default function DashboardPage() {
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
-  const userName = session?.user?.name;
+  const userEmail = session?.user?.email;
+  const [historyData, setHistoryData] = useState([]);
+  
+
+  interface LobbyData {
+    player_id: string;
+    lobby_id: string;
+    lobby_metadata: string;
+    // Add more properties if necessary
+  }
+
+  const getGamesHistory = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8009/api/v1/lobby_history`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.id_token}`,
+          },
+        }
+      );
+
+      const rawData = await response.json();
+      const combinedData = rawData.map((item: LobbyData) => {
+        const lobby_id = item.lobby_id;
+        const { admin_id } = JSON.parse(
+          item.lobby_metadata
+            .replace(/'/g, '"')
+            .replace(/None/g, "null")
+            .replace(/False/g, "false")
+            .replace(/True/g, "true")
+        );
+        const userStories = JSON.parse(
+          item.lobby_metadata
+            .replace(/'/g, '"')
+            .replace(/None/g, "null")
+            .replace(/False/g, "false")
+            .replace(/True/g, "true")
+        ).user_stories;
+
+        const formattedUserStories = userStories.map((story: any) => ({
+          story_name: story.story_name,
+          tickets: story.tickets.map((ticket: any) => ({
+            ticket_name: ticket.ticket_name,
+          })),
+          points: story.story_points,
+        }));
+        return {
+          lobby_id: lobby_id,
+          admin_id: admin_id,
+          user_stories: formattedUserStories,
+        };
+      });
+
+
+      return combinedData;
+    } catch (error) {
+      console.error("Error:", error);
+      return [];
+    }
+  };
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
+  useEffect(() => {
+    const fetchHistoryData = async () => {
+      const data = await getGamesHistory();
+      setHistoryData(data);
+      console.log(data); // Log the updated data
+    };
+
+    fetchHistoryData();
+  }, [session?.id_token]);
 
   return (
     <div className="flex-col w-full h-screen">
@@ -115,7 +121,7 @@ export default function DashboardPage() {
         <div className="ml-6 w-full flex flex-col gap-8 pt-6 pb-20">
           <h1 className="text-4xl font-bold">Dashboard</h1>
           <div className="container mx-auto py-4">
-            <DataTable columns={columns} data={data} />
+            <DataTable columns={columns} data={historyData} />
           </div>
           <div className="flex justify-center w-full gap-4 pb-8">
             <AlertDialog>
