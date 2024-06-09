@@ -50,7 +50,7 @@ export const LobbyResultSheet = (props: LobbyResultSheetProps) => {
                     {props.joinedPlayers.map((player) => (
                         <Card key={player.player_id} className="bg-primary-foreground">
                             <CardHeader className="py-2 bg-header rounded-t-md">
-                                <CardTitle className="flex items-center justify-center">{player.player_id}</CardTitle>
+                                <CardTitle className="flex items-center justify-center">{player.player_name}</CardTitle>
                             </CardHeader>
                             <CardContent className="p-2">
                                 <div className="flex flex-row space-x-4 items-center m-4">
