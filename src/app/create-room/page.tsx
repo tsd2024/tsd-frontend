@@ -53,11 +53,9 @@ export default function CreateRoomPage() {
         shouldReconnect: () => true,
         onOpen: () => console.log("opened"),
         onMessage: (event) => {
-            console.log("received", event.data);
             const data = JSON.parse(event.data);
 
             if (data.action === "create") {
-                console.log("Lobby created");
                 const roomId = data.lobby_id;
                 router.push(`/rooms/${roomId}/`);
             }
@@ -66,7 +64,6 @@ export default function CreateRoomPage() {
     });
 
     const createLobby = (maxPlayers: number, numberOfRounds: number, lobbyName: string) => {
-        console.log("Creating lobby")
         let data = {
             action: ActionType.CREATE,
             value: { max_players: maxPlayers, number_of_rounds: numberOfRounds, lobby_name: lobbyName, admin_id: session?.user?.email, admin_name: session?.user?.name}
@@ -77,9 +74,6 @@ export default function CreateRoomPage() {
     function onSubmit(values: z.infer<typeof formSchema>) {
         const lobbyId = generateId();
         const adminId = generateId();
-        console.log("Lobby id:", lobbyId);
-        console.log("Admin id:", adminId);
-        console.log(values);
         createLobby(values.max_players, values.max_rounds, values.roomname);
     }
 

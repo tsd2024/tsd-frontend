@@ -66,9 +66,6 @@ const useGameLogic = (roomId: string, playerId: string | null, playerName: strin
             },
             onMessage: (event) => {
                 let receiveData = JSON.parse(event.data) as WebSocketMessage;
-                console.log("Received data");
-                console.log(receiveData);
-
                 if (
                     receiveData.action === ActionType.LOBBY_STATE &&
                     receiveData.value.reveal_ready &&
@@ -92,7 +89,6 @@ const useGameLogic = (roomId: string, playerId: string | null, playerName: strin
                     }
                 }
                 if (receiveData.action === ActionType.NEXT_ROUND) {
-                    console.log("HERE")
                     setSelectedCard(null);
                     // reset results sheet open
                     setFirstResultSheetOpen(false);
@@ -212,7 +208,7 @@ const useGameLogic = (roomId: string, playerId: string | null, playerName: strin
     };
 
     const navigateAtTheEndOfGame = () => {
-        router.push(`/create-room`)
+        router.push(`/dashboard`)
     }
 
     const openResultsSheet = () => {
