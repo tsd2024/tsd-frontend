@@ -38,9 +38,12 @@ export default function DashboardPage() {
   }
 
   const getGamesHistory = async (idToken: string) => {
+    const BACKEND_URL = process.env.BACKEND_URL;
+    const BACKEND_PROTOCOL = process.env.BACKEND_PROTOCOL;
+
     try {
       const response = await fetch(
-        `http://localhost:8009/api/v1/lobby_history`,
+        `${BACKEND_PROTOCOL}://${BACKEND_URL}/api/v1/lobby_history`,
         {
           method: "GET",
           headers: {
