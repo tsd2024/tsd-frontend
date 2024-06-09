@@ -82,7 +82,6 @@ export default function DashboardPage() {
         };
       });
 
-      console.log("Combined data:", combinedData);
       return combinedData;
     } catch (error) {
       console.error("Error:", error);
@@ -102,7 +101,6 @@ export default function DashboardPage() {
           const data = await getGamesHistory(session.id_token); 
           setHistoryData(data);
           setLoading(false); 
-          console.log(data); 
         }
       } catch (error) {
         console.error("Error fetching data:", error);
