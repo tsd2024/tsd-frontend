@@ -127,36 +127,6 @@ export default function DashboardPage() {
               <DataTable columns={columns} data={historyData} />
             )}
           </div>
-          <div className="flex justify-center w-full gap-4 pb-8">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="default" className="w-36 justify-center">
-                  Join the game
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="mb-2">
-                    Join the game
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    <div className="flex w-full max-w items-center space-x-2">
-                      <Input type="text" placeholder="Provide the link" />
-                      <Button type="submit">Join</Button>
-                    </div>
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="w-7/12 justify-center">
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-            <Link href="/create-room" legacyBehavior passHref>
-              <Button variant="default" className="w-36 justify-center">
-                Start new game
-              </Button>
-            </Link>
-          </div>
         </div>
       </div>
     </div>
