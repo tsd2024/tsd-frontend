@@ -111,10 +111,6 @@ export const TopBar = () => {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>Settings</DropdownMenuItem>
-                        <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() =>
                             signOut({ callbackUrl: "/", redirect: true })
                         }>Logout</DropdownMenuItem>

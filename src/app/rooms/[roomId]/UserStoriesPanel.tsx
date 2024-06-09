@@ -25,6 +25,18 @@ import {
 } from "@/components/ui/card";
 
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
@@ -76,16 +88,12 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
 
               {/* Import and export buttons */}
               <div className="flex flex-row space-x-2">
-                <ImportDialog
-                  roomId={props.roomId}
-                />
+                <ImportDialog roomId={props.roomId} />
                 <Button variant="outline" onClick={props.exportUserStories}>
                   <CiExport />
                 </Button>
               </div>
-
             </div>
-
           </SheetHeader>
           <div className="flex flex-col space-y-4">
             {props.userStories.map((userStory) => (
@@ -105,13 +113,31 @@ export const UserStoriesPanel = (props: UserStoriesPanelProps) => {
                             userStory={userStory}
                             updateUserStory={props.updateUserStory}
                           />
-                          <Button
-                            variant={"outline"}
-                            onClick={() => props.deleteUserStory(userStory)}
-                            className="border-none"
-                          >
-                            Delete
-                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant={"outline"}
+                                className="border-none"
+                              >
+                                Delete
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Are you sure you want to delete this user story?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will
+                                  permanently delete your user story.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => props.deleteUserStory(userStory)}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>

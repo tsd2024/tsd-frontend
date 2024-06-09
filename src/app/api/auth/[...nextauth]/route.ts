@@ -29,40 +29,12 @@ const handler = NextAuth({
     ],
     callbacks: {
         async jwt({ token, account, user }) {
-            // if (account && user) {
-            //     console.log("account", account);
-            //     console.log("user", user);
-            //     console.log("token", token);
-
-            //     return {
-            //         id_token: account.id_token,
-            //         accessToken: account.access_token,
-            //         accessTokenExpires: Date.now() + account.expires_at! * 1000,
-            //         refreshToken: account.refresh_token,
-            //         user
-            //     }
-            // }
-
             if (account) {
                 token.id_token = account.id_token;
             }
-
             return token;
         },
         async session({ session, token }) {
-            // if (session) {
-            //     session = Object.assign({}, session, {
-            //         id_token: token.id_token,
-            //         user: {
-            //           name: (token.user as { name: string }).name,
-            //         },
-            //     });
-            //     session = Object.assign({}, session, {
-            //         authToken: token.myToken,
-            //     });
-            // }
-            // session.id_token = token.id_token;
-
             session = Object.assign({}, session, {
                 id_token: token.id_token
             });
